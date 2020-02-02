@@ -58,7 +58,7 @@ struct serializer <
 
 	 template<typename Archive>
 	 static Archive& load(Archive& ar, T& v) {
-		  serialize(ar, v);
+		  deserialize(ar, v);
 		  return ar;
 	 }
 };

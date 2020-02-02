@@ -149,7 +149,7 @@ public:
         ? ser_case::has_split_memfns
         : has_memfn_serializer<is_fundamental || is_array, is_enum, T, void(Ar)>::value
             ? ser_case::has_one_memfn
-            : has_function_const_serialize<is_fundamental || is_array, is_enum, Ar, T>::value
+            : has_function_deserialize<is_fundamental || is_array, is_enum, Ar, T>::value
                 ? ser_case::has_split_functions
                 : has_function_serialize<is_fundamental || is_array, is_enum, Ar, T>::value
                     ? ser_case::has_one_function

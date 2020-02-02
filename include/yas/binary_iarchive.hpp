@@ -36,21 +36,21 @@
 #ifndef __yas__binary_iarchive_hpp
 #define __yas__binary_iarchive_hpp
 
-#include <yas/detail/type_traits/type_traits.hpp>
-#include <yas/detail/type_traits/serializer.hpp>
-#include <yas/detail/io/header.hpp>
 #include <yas/detail/io/binary_streams.hpp>
+#include <yas/detail/io/header.hpp>
 #include <yas/detail/tools/base_object.hpp>
-#include <yas/detail/tools/noncopyable.hpp>
 #include <yas/detail/tools/limit.hpp>
+#include <yas/detail/tools/noncopyable.hpp>
+#include <yas/detail/type_traits/serializer.hpp>
+#include <yas/detail/type_traits/type_traits.hpp>
 
-#include <yas/types/utility/fundamental.hpp>
-#include <yas/types/utility/enum.hpp>
-#include <yas/types/utility/usertype.hpp>
 #include <yas/types/utility/autoarray.hpp>
 #include <yas/types/utility/buffer.hpp>
-#include <yas/types/utility/value.hpp>
+#include <yas/types/utility/enum.hpp>
+#include <yas/types/utility/fundamental.hpp>
 #include <yas/types/utility/object.hpp>
+#include <yas/types/utility/usertype.hpp>
+#include <yas/types/utility/value.hpp>
 
 #include <yas/buffers.hpp>
 #include <yas/object.hpp>
@@ -60,56 +60,49 @@ namespace yas {
 
 /***************************************************************************/
 
-template<typename IS, std::size_t F = binary|ehost>
-struct binary_iarchive
-	:detail::binary_istream<IS, F>
-    ,detail::iarchive_header<F>
-{
-    YAS_NONCOPYABLE(binary_iarchive)
-    YAS_MOVABLE(binary_iarchive)
+template <typename IS, std::size_t F = binary | ehost>
+struct binary_iarchive : detail::binary_istream<IS, F>,
+                         detail::iarchive_header<F> {
+  YAS_NONCOPYABLE(binary_iarchive)
+  YAS_MOVABLE(binary_iarchive)
 
-	using stream_type = IS;
-    using this_type = binary_iarchive<IS, F>;
+  using stream_type = IS;
+  using this_type = binary_iarchive<IS, F>;
 
-	binary_iarchive(IS &is)
-		:detail::binary_istream<IS, F>(is)
-		,detail::iarchive_header<F>(is)
-	{}
+  binary_iarchive(IS& is)
+      : detail::binary_istream<IS, F>(is), detail::iarchive_header<F>(is) {}
 
-	template<typename T>
-	this_type& operator& (T &&v) {
-		using namespace detail;
-		using real_type = typename std::remove_reference<
-			typename std::remove_const<T>::type
-		>::type;
-		return serializer<
-			 type_properties<real_type>::value
-			,serialization_method<real_type, this_type>::value
-			,F
-			,real_type
-		>::load(*this, v);
-	}
+  template <typename T>
+  this_type& operator&(const T& v) {
+    using namespace detail;
+    using real_type = typename std::remove_reference<
+        typename std::remove_const<T>::type>::type;
+    return serializer<type_properties<real_type>::value,
+                      serialization_method<real_type, this_type>::value, F,
+                      real_type>::load(*this, __YAS_CCAST(T&, v));
+  }
 
-	this_type& serialize() { return *this; }
+  this_type& serialize() { return *this; }
 
-	template<typename Head, typename... Tail>
-	this_type& serialize(Head &&head, Tail&&... tail) {
-		return operator& (std::forward<Head>(head)).serialize(std::forward<Tail>(tail)...);
-	}
+  template <typename Head, typename... Tail>
+  this_type& serialize(Head&& head, Tail&&... tail) {
+    return operator&(std::forward<Head>(head))
+        .serialize(std::forward<Tail>(tail)...);
+  }
 
-	template<typename... Args>
-	this_type& operator()(Args &&... args) {
-		return serialize(std::forward<Args>(args)...);
-	}
+  template <typename... Args>
+  this_type& operator()(Args&&... args) {
+    return serialize(std::forward<Args>(args)...);
+  }
 
-	template<typename... Args>
-	this_type& load(Args &&... args) {
-		return serialize(std::forward<Args>(args)...);
-	}
+  template <typename... Args>
+  this_type& load(Args&&... args) {
+    return serialize(std::forward<Args>(args)...);
+  }
 };
 
 /***************************************************************************/
 
-} // namespace yas
+}  // namespace yas
 
-#endif // __yas__binary_iarchive_hpp
+#endif  // __yas__binary_iarchive_hpp

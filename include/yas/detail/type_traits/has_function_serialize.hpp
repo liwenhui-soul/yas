@@ -36,6 +36,7 @@
 #ifndef __yas__detail__type_traits__has_function_serialize_hpp
 #define __yas__detail__type_traits__has_function_serialize_hpp
 
+#include <functional>
 #include <yas/detail/tools/cast.hpp>
 
 namespace yas {
@@ -45,49 +46,51 @@ extern void serialize(int&);
 
 /***************************************************************************/
 
-template<bool is_pod, bool is_enum, typename T, typename T2>
-struct has_function_const_serialize {
-	static const bool value = false;
+template <bool is_pod, bool is_enum, typename T, typename T2>
+struct has_function_deserialize {
+  static const bool value = false;
 };
 
-template<typename T, typename T2>
-struct has_function_const_serialize<false, false, T, T2> {
-	typedef char (&yes) [1];
-	typedef char (&no)  [2];
+template <typename T, typename T2>
+struct has_function_deserialize<false, false, T, T2> {
+  typedef char (&yes)[1];
+  typedef char (&no)[2];
 
-	template<typename U, typename U2>
-	static yes check(decltype(serialize(*__YAS_SCAST(U*, nullptr), *__YAS_SCAST(const U2*, nullptr)))*);
+  template <typename U, typename U2>
+  static yes check(decltype(deserialize(*__YAS_SCAST(U*, nullptr),
+                                        *__YAS_SCAST(U2*, nullptr)))*);
 
-	template<typename U, typename U2>
-	static no check(...);
+  template <typename U, typename U2>
+  static no check(...);
 
-	enum { value = sizeof(check<T, T2>(0)) == sizeof(yes) };
+  enum { value = sizeof(check<T, T2>(0)) == sizeof(yes) };
 };
 
 /***************************************************************************/
 
-template<bool is_pod, bool is_enum, typename T, typename T2>
+template <bool is_pod, bool is_enum, typename T, typename T2>
 struct has_function_serialize {
-	static const bool value = false;
+  static const bool value = false;
 };
 
-template<typename T, typename T2>
+template <typename T, typename T2>
 struct has_function_serialize<false, false, T, T2> {
-	typedef char (&yes) [1];
-	typedef char (&no)  [2];
+  typedef char (&yes)[1];
+  typedef char (&no)[2];
 
-	template<typename U, typename U2>
-	static yes check(decltype(serialize(*__YAS_SCAST(U*, nullptr), *__YAS_SCAST(U2*, nullptr)))*);
+  template <typename U, typename U2>
+  static yes check(decltype(serialize(*__YAS_SCAST(U*, nullptr),
+                                      *__YAS_SCAST(U2*, nullptr)))*);
 
-	template<typename U, typename U2>
-	static no check(...);
+  template <typename U, typename U2>
+  static no check(...);
 
-	enum { value = sizeof(check<T, T2>(0)) == sizeof(yes) };
+  enum { value = sizeof(check<T, T2>(0)) == sizeof(yes) };
 };
 
 /***************************************************************************/
 
-} // ns detail
-} // ns yas
+}  // namespace detail
+}  // namespace yas
 
-#endif // __yas__detail__type_traits__has_function_serialize_hpp
+#endif  // __yas__detail__type_traits__has_function_serialize_hpp
